@@ -1,0 +1,16 @@
+venv/
+chrome_profile/
+credentials/
+logs/
+__pycache__/
+*.pyc
+.env
+
+# Local tooling / OS files
+.claude/
+.DS_Store
+
+# Generated data files (not source)
+shipments.xlsx
+tracking_2.xlsx
+*.numbers

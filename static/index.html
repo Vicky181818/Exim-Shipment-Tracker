@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Exim Routes — Shipment Tracker</title>
+<link rel="icon" type="image/png" href="/static/favicon.png"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+/* ── TOKENS ──────────────────────────────────────────────── */
+:root{
+  --navy:       #0C1F6E;
+  --navy-deep:  #060F3D;
+  --navy-mid:   #1a3480;
+  --amber:      #F5A623;
+  --rose:       #E8185A;
+  --slate:      #475569;
+  --slate-lt:   #94a3b8;
+  --border:     #e6ebf2;
+  --surface:    #f6f8fc;
+  --white:      #ffffff;
+  --text:       #0f172a;
+  --text-mid:   #374151;
+
+  --status-green-bg: #f0fdf4; --status-green-fg: #15803d; --status-green-bar: #22c55e;
+  --status-blue-bg:  #eff6ff; --status-blue-fg:  #1d4ed8; --status-blue-bar:  #3b82f6;
+  --status-amber-bg: #fffbeb; --status-amber-fg: #b45309; --status-amber-bar: #f59e0b;
+  --status-red-bg:   #fef2f2; --status-red-fg:   #b91c1c; --status-red-bar:   #ef4444;
+
+  /* Signature gradients */
+  --grad-accent: linear-gradient(100deg, var(--amber) 0%, var(--rose) 100%);
+  --grad-navy:   linear-gradient(160deg, #12277f 0%, #0C1F6E 55%, #081550 100%);
+  --grad-sheen:  linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.55));
+
+  --radius-sm: 8px;
+  --radius:    14px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 1px 2px rgba(15,23,42,.05), 0 1px 3px rgba(15,23,42,.04);
+  --shadow:    0 6px 22px rgba(12,31,110,.09), 0 2px 6px rgba(15,23,42,.04);
+  --shadow-lg: 0 28px 70px rgba(12,31,110,.16), 0 8px 24px rgba(15,23,42,.07);
+  --ring:      0 0 0 4px rgba(12,31,110,.10);
+}
+
+/* ── RESET ───────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;}
+body{font-family:"Inter",-apple-system,"Segoe UI",sans-serif;background:var(--surface);color:var(--text);font-size:14px;overflow-x:hidden;line-height:1.5;}
+#about,#routes,#contact{scroll-margin-top:76px;}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+header{
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:200;
+  box-shadow:0 1px 0 var(--border), var(--shadow-sm);
+}
+.header-inner{
+  max-width:1200px;margin:0 auto;
+  padding:0 24px;
+  height:68px;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+}
+.logo-wrap{display:flex;align-items:center;gap:16px;text-decoration:none;}
+.logo-wrap img{height:38px;width:auto;display:block;}
+.logo-divider{width:1px;height:28px;background:var(--border);}
+.logo-tagline{font-size:11px;font-weight:600;color:var(--slate);letter-spacing:.08em;text-transform:uppercase;}
+
+.nav{display:flex;align-items:center;gap:4px;}
+.nav a{color:var(--slate);text-decoration:none;font-size:13px;font-weight:500;padding:7px 13px;border-radius:var(--radius-sm);transition:background .15s,color .15s;}
+.nav a:hover{background:#f1f5f9;color:var(--navy);}
+.nav-cta{
+  background:var(--navy);color:var(--white)!important;
+  padding:8px 18px!important;border-radius:var(--radius-sm)!important;
+  font-weight:600!important;margin-left:8px;
+  transition:background .15s,transform .15s,box-shadow .15s!important;
+  box-shadow:0 2px 8px rgba(12,31,110,.25);
+}
+.nav-cta:hover{background:var(--navy-mid)!important;transform:translateY(-1px);box-shadow:0 4px 16px rgba(12,31,110,.35)!important;}
+
+/* ── HERO ────────────────────────────────────────────────── */
+.hero{
+  background:var(--grad-navy);
+  position:relative;overflow:hidden;
+  padding:84px 24px 96px;
+}
+/* Fine engineering grid — adds depth without noise */
+.hero::before{
+  content:"";position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+  background-size:48px 48px;
+  -webkit-mask-image:radial-gradient(ellipse 80% 70% at 70% 30%, #000 0%, transparent 75%);
+          mask-image:radial-gradient(ellipse 80% 70% at 70% 30%, #000 0%, transparent 75%);
+  pointer-events:none;
+}
+/* Warm accent glow, upper right */
+.hero::after{
+  content:"";position:absolute;
+  top:-160px;right:-120px;
+  width:620px;height:620px;border-radius:50%;
+  background:radial-gradient(circle, rgba(245,166,35,.18) 0%, rgba(232,24,90,.10) 40%, transparent 70%);
+  filter:blur(8px);
+  pointer-events:none;
+}
+.hero-inner{max-width:920px;margin:0 auto;position:relative;z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center;}
+
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.15);
+  color:rgba(255,255,255,.8);
+  font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 14px;border-radius:999px;margin-bottom:24px;
+}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+.hero h1{
+  font-size:54px;font-weight:900;color:var(--white);
+  line-height:1.06;letter-spacing:-.03em;
+  margin-bottom:22px;max-width:820px;
+  animation:fadeUp .7s ease-out both;
+}
+.hero h1 em{
+  font-style:normal;position:relative;
+  background:var(--grad-accent);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{
+  font-size:17px;color:rgba(255,255,255,.68);line-height:1.65;
+  max-width:520px;margin:0 auto 40px;
+  animation:fadeUp .7s .1s ease-out both;
+}
+.hero-stats{
+  display:inline-flex;gap:0;flex-wrap:wrap;justify-content:center;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:var(--radius);
+  padding:6px;
+  backdrop-filter:blur(10px);
+  box-shadow:0 8px 30px rgba(0,0,0,.15);
+  animation:fadeUp .7s .2s ease-out both;
+}
+.hero-stats>div{padding:14px 30px;position:relative;}
+.hero-stats>div+div::before{content:"";position:absolute;left:0;top:20%;height:60%;width:1px;background:rgba(255,255,255,.1);}
+.hero-stat-val{font-size:30px;font-weight:900;letter-spacing:-.02em;
+  background:linear-gradient(180deg,#fff,rgba(255,255,255,.72));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-stat-lbl{font-size:11px;color:rgba(255,255,255,.55);font-weight:600;margin-top:4px;text-transform:uppercase;letter-spacing:.08em;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+
+/* Carrier card */
+.carrier-card{
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:var(--radius-lg);
+  padding:28px;
+  backdrop-filter:blur(8px);
+  animation:fadeUp .7s .15s ease-out both;
+}
+.carrier-card-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px;}
+.carrier-list{display:flex;flex-direction:column;gap:10px;}
+.carrier-row{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:var(--radius-sm);
+  padding:11px 14px;
+  transition:background .2s;
+}
+.carrier-row:hover{background:rgba(255,255,255,.09);}
+.carrier-dot{width:8px;height:8px;border-radius:50%;background:var(--status-green-bar);flex-shrink:0;}
+.carrier-name{font-size:13px;font-weight:600;color:rgba(255,255,255,.85);}
+.carrier-desc{font-size:11px;color:rgba(255,255,255,.4);margin-left:auto;}
+
+/* ── SEARCH SECTION ──────────────────────────────────────── */
+.search-wrap{
+  max-width:820px;margin:-36px auto 0;
+  padding:0 24px;
+  position:relative;z-index:10;
+}
+.search-card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);
+  overflow:hidden;position:relative;
+}
+.search-card::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--grad-accent);
+}
+.search-card-head{
+  padding:26px 30px 20px;
+  border-bottom:1px solid var(--border);
+}
+.search-card-head h2{font-size:19px;font-weight:800;color:var(--navy);margin-bottom:5px;letter-spacing:-.01em;}
+.search-card-head p{font-size:13.5px;color:var(--slate);line-height:1.55;}
+
+.search-card-body{padding:20px 28px 24px;}
+.search-row{display:flex;gap:10px;flex-wrap:wrap;}
+
+#blInput{
+  flex:1;min-width:200px;
+  font-size:14px;font-weight:500;
+  padding:12px 16px;
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  outline:none;color:var(--text);background:var(--white);
+  transition:border-color .2s,box-shadow .2s;
+  font-family:inherit;
+}
+#blInput:focus{border-color:var(--navy);box-shadow:var(--ring);}
+#blInput::placeholder{color:var(--slate-lt);font-weight:400;}
+
+#carrierSelect{
+  font-size:13px;font-weight:500;font-family:inherit;
+  padding:12px 14px;
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  outline:none;color:var(--text);background:var(--white);
+  cursor:pointer;transition:border-color .2s,box-shadow .2s;
+  min-width:160px;
+}
+#carrierSelect:focus{border-color:var(--navy);box-shadow:var(--ring);}
+
+.track-btn{
+  background:var(--navy);color:var(--white);
+  border:none;border-radius:var(--radius-sm);
+  padding:12px 28px;font-size:14px;font-weight:700;
+  cursor:pointer;white-space:nowrap;font-family:inherit;
+  transition:background .2s,transform .15s,box-shadow .2s;
+  box-shadow:0 2px 8px rgba(12,31,110,.3);
+  letter-spacing:.02em;
+}
+.track-btn:hover:not(:disabled){
+  background:var(--navy-mid);
+  transform:translateY(-1px);
+  box-shadow:0 6px 20px rgba(12,31,110,.35);
+}
+.track-btn:active:not(:disabled){transform:translateY(0);}
+.track-btn:disabled{opacity:.55;cursor:not-allowed;}
+
+.detect-hint{
+  font-size:12px;color:var(--status-green-fg);
+  margin-top:10px;min-height:18px;font-weight:600;
+  display:flex;align-items:center;gap:6px;
+}
+.detect-hint:not(:empty)::before{content:"✓";}
+
+#result{margin-top:24px;}
+
+/* ── RESULT CARD ─────────────────────────────────────────── */
+.tracker-card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);
+  overflow:hidden;
+  animation:cardIn .5s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* Status accent stripe — the signature design element */
+.tracker-card.status-green{ border-top:3px solid var(--status-green-bar); }
+.tracker-card.status-blue{  border-top:3px solid var(--status-blue-bar);  }
+.tracker-card.status-amber{ border-top:3px solid var(--status-amber-bar); }
+.tracker-card.status-red{   border-top:3px solid var(--status-red-bar);   }
+
+/* Card header */
+.tc-head{
+  padding:20px 24px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+}
+.tc-head-left{}
+.tc-bl{font-size:20px;font-weight:800;color:var(--navy);letter-spacing:-.01em;font-variant-numeric:tabular-nums;}
+.tc-carrier{font-size:11px;font-weight:600;color:var(--slate-lt);letter-spacing:.07em;text-transform:uppercase;margin-top:4px;}
+
+.status-pill{
+  font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  padding:5px 12px;border-radius:999px;white-space:nowrap;flex-shrink:0;
+  animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes popIn{from{opacity:0;transform:scale(.7);}to{opacity:1;transform:scale(1);}}
+.pill-green{background:var(--status-green-bg);color:var(--status-green-fg);}
+.pill-blue{ background:var(--status-blue-bg); color:var(--status-blue-fg);}
+.pill-amber{background:var(--status-amber-bg);color:var(--status-amber-fg);}
+.pill-red{  background:var(--status-red-bg);  color:var(--status-red-fg);}
+
+/* Route bar */
+.tc-route{
+  padding:20px 24px;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+}
+.tc-route-ports{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px;}
+.tc-port{}
+.tc-port-label{font-size:10px;font-weight:700;color:var(--slate-lt);letter-spacing:.1em;text-transform:uppercase;}
+.tc-port-name{font-size:20px;font-weight:800;color:var(--navy);margin-top:4px;line-height:1.1;}
+.tc-port-date{
+  display:inline-block;margin-top:6px;
+  font-size:11px;font-weight:600;color:var(--slate);
+  background:var(--white);border:1px solid var(--border);
+  padding:3px 10px;border-radius:999px;
+}
+.tc-port.right{text-align:right;}
+
+/* Progress track */
+.tc-track-wrap{position:relative;padding:0 8px;}
+.tc-track{height:4px;background:var(--border);border-radius:2px;position:relative;overflow:visible;}
+.tc-track-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--navy),#3b82f6);transition:width .8s ease-out;}
+.tc-node{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:12px;height:12px;border-radius:50%;
+  background:var(--white);border:2.5px solid var(--navy);
+  box-shadow:0 0 0 3px rgba(12,31,110,.12);
+}
+.tc-node.start{left:-4px;}
+.tc-node.end{right:-4px;border-color:var(--status-green-bar);box-shadow:0 0 0 3px rgba(34,197,94,.15);}
+.tc-ship{
+  position:absolute;top:50%;transform:translate(-50%,-50%);
+  width:28px;height:28px;border-radius:50%;
+  background:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;
+  box-shadow:0 2px 12px rgba(12,31,110,.3);
+  z-index:2;
+}
+
+/* Tabs */
+.tc-tabs{display:flex;border-bottom:1px solid var(--border);padding:0 24px;background:var(--white);}
+.tc-tab{
+  background:none;border:none;border-bottom:2px solid transparent;
+  padding:13px 14px 13px 0;margin-right:20px;
+  font-size:12px;font-weight:700;font-family:inherit;
+  color:var(--slate-lt);cursor:pointer;
+  transition:color .2s,border-color .2s;
+  text-transform:uppercase;letter-spacing:.07em;
+  margin-bottom:-1px;white-space:nowrap;
+}
+.tc-tab:hover{color:var(--navy);}
+.tc-tab.active{color:var(--navy);border-bottom-color:var(--amber);}
+
+/* Tab body */
+.tc-body{padding:20px 24px;max-height:420px;overflow-y:auto;}
+
+/* Timeline */
+.tl-group{margin-bottom:22px;animation:fadeUp .4s ease-out both;}
+.tl-group:nth-child(1){animation-delay:.05s;}
+.tl-group:nth-child(2){animation-delay:.1s;}
+.tl-group:nth-child(3){animation-delay:.15s;}
+.tl-group:nth-child(4){animation-delay:.2s;}
+.tl-group:nth-child(n+5){animation-delay:.25s;}
+.tl-group:last-child{margin-bottom:0;}
+
+.tl-group-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.tl-dot{
+  width:11px;height:11px;border-radius:50%;flex-shrink:0;
+  background:var(--border);
+  border:2px solid var(--white);
+  box-shadow:0 0 0 1.5px var(--border);
+}
+.tl-dot.done{background:var(--status-green-bar);box-shadow:0 0 0 1.5px var(--status-green-bar);}
+.tl-dot.latest{
+  background:var(--navy);box-shadow:0 0 0 1.5px var(--navy);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 1.5px var(--navy);}50%{box-shadow:0 0 0 5px rgba(12,31,110,.2);}}
+.tl-loc{font-size:13px;font-weight:700;color:var(--navy);}
+
+.tl-events{padding-left:20px;border-left:2px solid var(--border);margin-left:5px;}
+.tl-ev{
+  display:flex;justify-content:space-between;align-items:baseline;
+  gap:8px;padding:5px 0;
+}
+.tl-ev-label{font-size:12px;color:var(--text-mid);font-weight:600;}
+.tl-ev-transport{font-size:11px;color:var(--slate-lt);font-weight:400;}
+.tl-ev-date{font-size:11px;color:var(--slate);white-space:nowrap;text-align:right;font-weight:500;}
+
+/* Vessel tab */
+.vessel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.vg-cell{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:14px;
+}
+.vg-cell .vc-lbl{font-size:10px;font-weight:700;color:var(--slate-lt);letter-spacing:.08em;text-transform:uppercase;}
+.vg-cell .vc-val{font-size:13px;font-weight:700;color:var(--navy);margin-top:6px;word-break:break-word;}
+
+/* Containers tab */
+.cn-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.cn-item{
+  display:flex;align-items:center;gap:12px;
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:11px 14px;background:var(--surface);
+  animation:fadeUp .4s ease-out both;
+}
+.cn-item:nth-child(1){animation-delay:.05s;}
+.cn-item:nth-child(2){animation-delay:.1s;}
+.cn-item:nth-child(3){animation-delay:.15s;}
+.cn-item:nth-child(4){animation-delay:.2s;}
+.cn-icon{
+  width:32px;height:32px;border-radius:6px;
+  background:linear-gradient(135deg,var(--navy),var(--navy-mid));
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.cn-num{font-size:13px;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;}
+.cn-note{font-size:11px;color:var(--slate-lt);margin-top:2px;}
+
+/* Card footer */
+.tc-foot{
+  padding:11px 24px;
+  border-top:1px solid var(--border);
+  font-size:11px;color:var(--slate-lt);
+  background:var(--surface);
+  display:flex;align-items:center;gap:6px;
+}
+.tc-foot-dot{width:6px;height:6px;border-radius:50%;background:var(--status-green-bar);animation:blink 3s ease-in-out infinite;}
+
+/* ── STATES ──────────────────────────────────────────────── */
+.loading-box{
+  background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:32px 28px;
+  display:flex;align-items:center;gap:16px;
+  color:var(--slate);font-size:14px;
+  box-shadow:var(--shadow);
+}
+.spinner{
+  width:20px;height:20px;border-radius:50%;
+  border:2.5px solid var(--border);border-top-color:var(--navy);
+  animation:spin 1s linear infinite;flex-shrink:0;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.hapag-hint{
+  font-size:12px;color:var(--slate-lt);margin-top:10px;
+  padding:10px 14px;border-radius:var(--radius-sm);
+  background:var(--surface);border:1px solid var(--border);
+}
+.hapag-hint a{color:var(--navy);font-weight:600;text-decoration:none;}
+.hapag-hint a:hover{text-decoration:underline;}
+
+.error-box{
+  background:#fef2f2;border:1px solid #fecaca;border-radius:var(--radius-lg);
+  padding:20px 24px;font-size:13px;color:#991b1b;line-height:1.6;
+}
+
+/* Manual fallback box */
+.manual-box{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:36px 32px;
+  box-shadow:var(--shadow-lg);text-align:center;
+  animation:cardIn .5s cubic-bezier(.22,1,.36,1) both;
+  border-top:3px solid var(--amber);
+}
+.manual-box-icon{font-size:32px;margin-bottom:12px;}
+.manual-box h3{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:10px;}
+.manual-box p{font-size:13px;color:var(--slate);line-height:1.65;max-width:440px;margin:0 auto 24px;}
+.manual-box-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.manual-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:11px 22px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:700;font-family:inherit;
+  text-decoration:none;cursor:pointer;border:none;
+  transition:all .2s;
+}
+.manual-btn.primary{background:var(--navy);color:var(--white);box-shadow:0 2px 10px rgba(12,31,110,.3);}
+.manual-btn.primary:hover{background:var(--navy-mid);transform:translateY(-1px);box-shadow:0 4px 16px rgba(12,31,110,.4);}
+.manual-btn.secondary{background:var(--surface);color:var(--navy);border:1px solid var(--border);}
+.manual-btn.secondary:hover{background:var(--border);}
+
+/* ── CONTACT / FOOTER ────────────────────────────────────── */
+.contact-section{
+  background:var(--navy-deep);
+  color:var(--white);
+  padding:60px 24px 48px;
+  margin-top:72px;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.contact-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:48px;}
+.contact-col-title{
+  font-size:11px;font-weight:700;color:rgba(255,255,255,.4);
+  letter-spacing:.12em;text-transform:uppercase;margin-bottom:20px;
+}
+.contact-col ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.contact-col li{font-size:13px;color:rgba(255,255,255,.65);}
+.contact-col a{color:var(--amber);text-decoration:none;font-weight:500;transition:color .2s;}
+.contact-col a:hover{color:var(--white);}
+.contact-footer-divider{
+  max-width:1100px;margin:36px auto 0;
+  padding-top:28px;border-top:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;
+}
+.contact-footer-divider img{height:28px;width:auto;opacity:.7;filter:brightness(0) invert(1);}
+.contact-footer-divider span{font-size:11px;color:rgba(255,255,255,.3);}
+
+/* ── SCROLLBAR ───────────────────────────────────────────── */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--surface);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--slate-lt);}
+
+/* ── ACCESSIBILITY ───────────────────────────────────────── */
+a:focus-visible,button:focus-visible{outline:2px solid var(--navy);outline-offset:3px;border-radius:var(--radius-sm);}
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr;}
+  .carrier-card{display:none;}
+  .hero{padding:52px 24px 64px;}
+  .hero h1{font-size:36px;}
+  .search-row{flex-direction:column;}
+  #blInput,#carrierSelect,.track-btn{width:100%;min-width:unset;}
+  .vessel-grid{grid-template-columns:1fr 1fr;}
+  .contact-inner{grid-template-columns:1fr;gap:36px;}
+  .contact-footer-divider{flex-direction:column;align-items:flex-start;}
+  .tc-body{max-height:none;}
+}
+@media(max-width:560px){
+  .hero h1{font-size:30px;}
+  .hero-stats{gap:20px;}
+  .search-card-head,.search-card-body{padding:18px 20px;}
+  .tc-head{padding:16px 18px;}
+  .tc-route{padding:16px 18px;}
+  .tc-tabs{padding:0 18px;}
+  .tc-body{padding:16px 18px;}
+  .tc-foot{padding:10px 18px;}
+  .vessel-grid{grid-template-columns:1fr;}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition-duration:.01ms!important;}
+}
+
+/* ── CARRIERS SHOWCASE ───────────────────────────────────── */
+.carriers-section{max-width:1120px;margin:80px auto 0;padding:0 24px;}
+.carriers-head{text-align:center;max-width:620px;margin:0 auto 40px;}
+.carriers-eyebrow{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--navy);background:rgba(12,31,110,.06);
+  padding:6px 13px;border-radius:999px;margin-bottom:16px;
+}
+.carriers-head h2{font-size:30px;font-weight:800;letter-spacing:-.02em;margin-bottom:12px;}
+.carriers-head p{color:var(--slate);font-size:15px;line-height:1.6;}
+.carriers-group-label{
+  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--slate-lt);margin:28px 0 14px;display:flex;align-items:center;gap:10px;
+}
+.carriers-group-label::after{content:"";flex:1;height:1px;background:var(--border);}
+.carriers-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;
+}
+.cc{
+  position:relative;overflow:hidden;
+  background:var(--white);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px;display:flex;flex-direction:column;gap:12px;
+  box-shadow:var(--shadow-sm);transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .2s,border-color .2s;
+}
+.cc::after{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--grad-accent);opacity:0;transition:opacity .2s;
+}
+.cc:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:transparent;}
+.cc:hover::after{opacity:1;}
+.cc-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.cc-name{font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.01em;}
+.cc-live{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--status-green-fg);}
+.cc-live-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--status-green-bar);
+  box-shadow:0 0 0 3px var(--status-green-bg);
+}
+.cc-badge{
+  align-self:flex-start;font-size:11px;font-weight:600;
+  padding:4px 10px;border-radius:999px;letter-spacing:.02em;
+}
+.cc-badge.api{background:var(--status-blue-bg);color:var(--status-blue-fg);}
+.cc-badge.web{background:var(--status-amber-bg);color:var(--status-amber-fg);}
+</style>
+</head>
+<body>
+
+<!-- ────────────────── HEADER ────────────────── -->
+<header>
+  <div class="header-inner">
+    <a href="#" class="logo-wrap">
+      <img src="/static/Primary-Logo.png" alt="EXIM Routes"/>
+      <div class="logo-divider"></div>
+      <span class="logo-tagline">Shipment Tracker</span>
+    </a>
+    <nav class="nav">
+      <a href="#about">About</a>
+      <a href="#contact" class="nav-cta">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ────────────────── HERO ────────────────── -->
+<section class="hero" id="about">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        Live tracking across global shipping lanes
+      </div>
+      <h1>Know exactly where your cargo <em>is</em></h1>
+      <p class="hero-sub">Real-time shipment visibility across all major carriers — from port of origin to final delivery, container by container.</p>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-val">9</div>
+          <div class="hero-stat-lbl">Carriers</div>
+        </div>
+        <div>
+          <div class="hero-stat-val">Live</div>
+          <div class="hero-stat-lbl">Status data</div>
+        </div>
+        <div>
+          <div class="hero-stat-val">BL</div>
+          <div class="hero-stat-lbl">Auto-detected</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────── SEARCH ────────────────── -->
+<div class="search-wrap">
+  <div class="search-card">
+    <div class="search-card-head">
+      <h2>Track a Shipment</h2>
+      <p>Enter your Bill of Lading number — the carrier will be detected automatically.</p>
+    </div>
+    <div class="search-card-body">
+      <div class="search-row">
+        <input id="blInput" type="text" placeholder="e.g. COSU6438803040" oninput="autoDetect()" autocomplete="off" spellcheck="false"/>
+        <select id="carrierSelect"></select>
+        <button class="track-btn" id="searchBtn" onclick="track()">Track</button>
+      </div>
+      <div class="detect-hint" id="detectHint"></div>
+    </div>
+  </div>
+  <div id="result"></div>
+</div>
+
+<!-- ────────────────── EXCEL SYNC ────────────────── -->
+<div class="search-wrap" style="margin-top:28px;" id="excel-sync-section">
+  <div class="search-card">
+    <div class="search-card-head" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div>
+        <h2 style="margin-bottom:5px;">Batch tracking</h2>
+        <p>Update the port of discharge and arrival date for every shipment in your list — all in one go.</p>
+      </div>
+      <a href="/api/excel/download" class="track-btn" style="text-decoration:none;white-space:nowrap;padding:11px 22px;font-size:13px;">Download report</a>
+    </div>
+    <div class="search-card-body" style="padding-top:14px;">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <button class="track-btn" id="syncBtn" onclick="runSync()" style="padding:11px 24px;font-size:13px;">Update all shipments</button>
+        <div id="syncStatus" style="font-size:13px;color:var(--slate);"></div>
+      </div>
+      <div id="syncProgress" style="margin-top:14px;display:none;">
+        <div style="display:flex;align-items:center;gap:10px;color:var(--slate);font-size:13px;">
+          <div class="spinner"></div>
+          <span>Fetching the latest status for each shipment — this can take a few minutes.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────── SUPPORTED CARRIERS ────────────────── -->
+<section class="carriers-section" id="routes">
+  <div class="carriers-head">
+    <span class="carriers-eyebrow"><span class="cc-live-dot"></span> Live coverage</span>
+    <h2>Carriers we track</h2>
+    <p>Nine shipping lines, tracked automatically and refreshed in real time — from port of origin to final delivery.</p>
+  </div>
+
+  <div class="carriers-group-label">Instant results</div>
+  <div class="carriers-grid">
+    <div class="cc"><div class="cc-top"><span class="cc-name">COSCO</span><span class="cc-live"><span class="cc-live-dot"></span>Live</span></div><span class="cc-badge api">Instant</span></div>
+    <div class="cc"><div class="cc-top"><span class="cc-name">Hapag-Lloyd</span><span class="cc-live"><span class="cc-live-dot"></span>Live</span></div><span class="cc-badge api">Instant</span></div>
+    <div class="cc"><div class="cc-top"><span class="cc-name">ONE Line</span><span class="cc-live"><span class="cc-live-dot"></span>Live</span></div><span class="cc-badge api">Instant</span></div>
+    <div class="cc"><div class="cc-top"><span class="cc-name">MSC</span><span class="cc-live"><span class="cc-live-dot"></span>Live</span></div><span class="cc-badge api">Instant</span></div>
+    <div class="cc"><div class="cc-top"><span class="cc-name">HMM</span><span class="cc-live"><span class="cc-live-dot"></span>Live</span></div><span class="cc-badge api">Instant</span></div>
+    <div class="cc"><div class="cc-top"><span class="cc-name">Transliner</span><span class="cc-live"><span class="cc-live-dot"></span>Live</span></div><span class="cc-badge api">Instant</span></div>
+  </div>
+
+  <div class="carriers-group-label">Real-time tracking</div>
+  <div class="carriers-grid">
+    <div class="cc"><div class="cc-top"><span class="cc-name">CMA CGM</span><span class="cc-live"><span class="cc-live-dot"></span>Live</span></div><span class="cc-badge web">Live</span></div>
+    <div class="cc"><div class="cc-top"><span class="cc-name">InterAsia</span><span class="cc-live"><span class="cc-live-dot"></span>Live</span></div><span class="cc-badge web">Live</span></div>
+    <div class="cc"><div class="cc-top"><span class="cc-name">Maersk</span><span class="cc-live"><span class="cc-live-dot"></span>Live</span></div><span class="cc-badge web">Live</span></div>
+  </div>
+</section>
+
+<!-- ────────────────── CONTACT ────────────────── -->
+<section class="contact-section" id="contact">
+  <div class="contact-inner">
+    <div class="contact-col">
+      <div class="contact-col-title">Get in touch</div>
+      <ul>
+        <li><a href="tel:+919876543210">+91 98765 43210</a></li>
+        <li><a href="mailto:support@eximtrack.com">support@eximtrack.com</a></li>
+        <li><a href="mailto:sales@eximtrack.com">sales@eximtrack.com</a></li>
+      </ul>
+    </div>
+    <div class="contact-col">
+      <div class="contact-col-title">Office locations</div>
+      <ul>
+        <li>New Delhi, India</li>
+        <li>Mumbai, India</li>
+        <li>Singapore</li>
+        <li>Dubai, UAE</li>
+      </ul>
+    </div>
+    <div class="contact-col">
+      <div class="contact-col-title">Quick links</div>
+      <ul>
+        <li><a href="#about">About us</a></li>
+        <li><a href="#routes">Supported carriers</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="contact-footer-divider">
+    <img src="/static/Primary-Logo.png" alt="EXIM Routes"/>
+    <span>© 2026 EXIM Routes. All rights reserved.</span>
+  </div>
+</section>
+
+<script>
+/* ── ALL ORIGINAL JS LOGIC PRESERVED EXACTLY ── */
+const BL_PREFIX={
+  // Hapag-Lloyd
+  HLCU:"HAPAG-LLOYD",HLBU:"HAPAG-LLOYD",HAMU:"HAPAG-LLOYD",HLXU:"HAPAG-LLOYD",
+  BMOU:"HAPAG-LLOYD",SEGU:"HAPAG-LLOYD",
+  // Maersk
+  MAEU:"MAERSK",MRKU:"MAERSK",MSKU:"MAERSK",MCUB:"MAERSK",TRHU:"MAERSK",
+  MAEI:"MAERSK",PONU:"MAERSK",
+  // MSC
+  MSCU:"MSC",MEDU:"MSC",MSDU:"MSC",TCKU:"MSC",MSMU:"MSC",
+  // CMA CGM
+  CMAU:"CMA CGM",CGMU:"CMA CGM",APHU:"CMA CGM",CCLU:"CMA CGM",
+  LPL1:"CMA CGM",DBA0:"CMA CGM",IBC1:"CMA CGM",SNG0:"CMA CGM",
+  CMDU:"CMA CGM",CRXU:"CMA CGM",
+  // COSCO
+  COSU:"COSCO",CBHU:"COSCO",CSNU:"COSCO",FCIU:"COSCO",CCLU:"COSCO",
+  FSCU:"COSCO",OOLU:"OOCL",
+  // InterAsia
+  IALU:"INTERASIA",IASU:"INTERASIA",A02G:"INTERASIA",
+  // ONE Line
+  ONEY:"ONE LINE",ONEU:"ONE LINE",CPTG:"ONE LINE",
+  // HMM
+  HDMU:"HMM LINE",HMMU:"HMM LINE",BCNA:"HMM LINE",HEMU:"HMM LINE",
+  // OOCL
+  OOCU:"OOCL",ORCU:"OOCL",
+  // Evergreen
+  EGLV:"EVERGREEN",EGHU:"EVERGREEN",EGSU:"EVERGREEN",EGPU:"EVERGREEN",
+  // KMTC
+  KMTU:"KMTC",
+  // PIL
+  PCIU:"PIL",PILW:"PIL",
+  // Transliner
+  TRLS:"TRANSLINER",
+};
+const DISPLAY={
+  "HAPAG-LLOYD":"Hapag-Lloyd",
+  "MAERSK":"Maersk",
+  "MSC":"MSC",
+  "CMA CGM":"CMA CGM",
+  "COSCO":"COSCO",
+  "INTERASIA":"InterAsia",
+  "ONE LINE":"ONE Line",
+  "HMM LINE":"HMM",
+  "OOCL":"OOCL",
+  "TRANSLINER":"Transliner",
+  "EVERGREEN":"Evergreen",
+  "KMTC":"KMTC",
+  "PIL":"PIL",
+};
+
+// Only carriers verified to return live tracking data are marked supported.
+// COSCO/Hapag/ONE/MSC/HMM use direct APIs; CMA CGM/InterAsia/Maersk use the
+// browser path. OOCL/KMTC/PIL have no verified tracking yet, so they're hidden
+// from the picker rather than shown as if they work.
+const ALL_CARRIERS=[
+  {key:"COSCO",       label:"COSCO",             supported:true},
+  {key:"HAPAG-LLOYD", label:"Hapag-Lloyd",       supported:true},
+  {key:"ONE LINE",    label:"ONE Line",          supported:true},
+  {key:"MSC",         label:"MSC",               supported:true},
+  {key:"HMM LINE",    label:"HMM",               supported:true},
+  {key:"CMA CGM",     label:"CMA CGM",           supported:true},
+  {key:"INTERASIA",   label:"InterAsia",         supported:true},
+  {key:"MAERSK",      label:"Maersk",            supported:true},
+  {key:"TRANSLINER",  label:"Transliner",        supported:true},
+  {key:"OOCL",        label:"OOCL",              supported:false},
+  {key:"KMTC",        label:"KMTC",              supported:false},
+  {key:"PIL",         label:"PIL",               supported:false},
+  {key:"EVERGREEN",   label:"Evergreen",         supported:false},
+  {key:"TRANS ASIA",  label:"Trans Asia",        supported:false},
+  {key:"UNIFEEDER",   label:"Unifeeder",         supported:false},
+  {key:"BLUE WATER",  label:"Blue Water",        supported:false},
+];
+
+function loadCarriers(){
+  const sel=document.getElementById("carrierSelect");
+  // Show only carriers we can actually track.
+  sel.innerHTML=ALL_CARRIERS.filter(c=>c.supported)
+    .map(c=>`<option value="${c.key}">${c.label}</option>`).join("");
+}
+
+function autoDetect(){
+  const bl=document.getElementById("blInput").value.trim().toUpperCase();
+  const hint=document.getElementById("detectHint");
+  const sel=document.getElementById("carrierSelect");
+  hint.textContent="";
+  if(bl.length<4)return;
+
+  // Pure numeric = Maersk
+  let carrier=/^\d+$/.test(bl)?"MAERSK":BL_PREFIX[bl.substring(0,4)];
+  if(!carrier)return;
+
+  // If we recognise the carrier but don't support tracking it yet, say so
+  // plainly instead of silently leaving the wrong carrier selected.
+  const info=ALL_CARRIERS.find(c=>c.key===carrier);
+  if(info&&!info.supported){
+    hint.textContent=(DISPLAY[carrier]||info.label)+" isn't supported for tracking yet";
+    return;
+  }
+
+  hint.textContent="Auto-detected: "+(DISPLAY[carrier]||carrier);
+  for(let i=0;i<sel.options.length;i++){
+    if(sel.options[i].value===carrier){sel.selectedIndex=i;break;}
+  }
+}
+
+// T/S (transshipment) port events — these are intermediate stops, not the final POD.
+// We must not treat them as "arrived" or use them as ATA.
+function isTS(s){return/t\/s\b|transship/i.test(s);}
+
+const DELIVERED_KW=["delivered","gate in empty","gated in","empty return","returned","gate out empty","empty received","import to consignee","empty in depot","import gate out"];
+const ARRIVED_KW=["vessel arriv","discharged","arrival in"];
+const ERROR_KW=["error","not found","timeout"];
+
+function pillClass(s){
+  s=(s||"").toLowerCase();
+  if(DELIVERED_KW.some(w=>s.includes(w)))return"pill-green";
+  if(ERROR_KW.some(w=>s.includes(w)))return"pill-red";
+  if(!isTS(s)&&ARRIVED_KW.some(w=>s.includes(w)))return"pill-blue";
+  return"pill-amber";
+}
+
+function pillLabel(s){
+  const orig=s||"";
+  s=(s||"").toLowerCase();
+  if(DELIVERED_KW.some(w=>s.includes(w)))return"DELIVERED";
+  if(ERROR_KW.some(w=>s.includes(w)))return"ERROR";
+  if(!isTS(s)&&ARRIVED_KW.some(w=>s.includes(w)))return"ARRIVED";
+  if(["vessel depart","loaded"].some(w=>s.includes(w)))return"IN TRANSIT";
+  if(isTS(s)&&["vessel arriv","arrival","berthing"].some(w=>s.includes(w)))return"AT T/S PORT";
+  if(["ready to be loaded"].some(w=>s.includes(w)))return"READY TO LOAD";
+  if(orig.trim()) return orig.trim().toUpperCase().slice(0,20);
+  return"UNDER PROCESS";
+}
+
+function stripeClass(s){
+  s=(s||"").toLowerCase();
+  if(DELIVERED_KW.some(w=>s.includes(w)))return"status-green";
+  if(ERROR_KW.some(w=>s.includes(w)))return"status-red";
+  if(!isTS(s)&&ARRIVED_KW.some(w=>s.includes(w)))return"status-blue";
+  return"status-amber";
+}
+
+const MONTH_NAMES=["January","February","March","April","May","June","July","August","September","October","November","December"];
+function formatDateStr(str){
+  if(!str)return str;
+  const m=str.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if(!m)return str;
+  const monthIdx=parseInt(m[2],10)-1;
+  const monthName=MONTH_NAMES[monthIdx];
+  if(!monthName)return str;
+  const day=parseInt(m[3],10);
+  return str.replace(m[0],`${day} ${monthName} ${m[1]}`);
+}
+
+function pct(s){
+  const sl=(s||"").toLowerCase();
+  const ts=isTS(sl);
+  if(DELIVERED_KW.some(w=>sl.includes(w)))return 100;
+  if(["import to consignee"].some(w=>sl.includes(w)))return 95;
+  if(!ts&&["discharged","vessel arriv","arrival in"].some(w=>sl.includes(w)))return 85;
+  if(!ts&&["departure from"].some(w=>sl.includes(w)))return 75;
+  if(ts&&["departure from","vessel depart"].some(w=>sl.includes(w)))return 65;
+  if(ts&&["vessel arriv","arrival","berthing"].some(w=>sl.includes(w)))return 55;
+  if(["vessel depart","loaded"].some(w=>sl.includes(w)))return 50;
+  if(["gate out"].some(w=>sl.includes(w)))return 20;
+  return 40;
+}
+
+function parseStatusBlock(raw){
+  if(!raw)return[];
+  const cleaned=raw.replace(/^Status\s+Place of Activity\s+Date\s+Time\s+Transport\s+Voyage No\.\s*/i,"").trim();
+  const lines=cleaned.split("\n").map(l=>l.trim()).filter(Boolean);
+  const events=[];
+  const dateRe=/(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})(?::\d{2})?/;
+  for(const line of lines){
+    const dm=line.match(dateRe);
+    if(!dm)continue;
+    const dateStart=line.indexOf(dm[0]);
+    const before=line.substring(0,dateStart).trim();
+    const after=line.substring(dateStart+dm[0].length).trim();
+    let status=before,place="";
+    // Always split on 2+ spaces first — works for MSC, COSCO, Hapag, InterAsia
+    const parts=before.split(/\s{2,}/).map(p=>p.trim()).filter(Boolean);
+    if(parts.length>=2){
+      status=parts[0];
+      place=parts.slice(1).join(" ");
+    } else {
+      // No double-space — single chunk, keep as status only
+      status=before;
+      place="";
+    }
+    // Parse transport and voyage from after (separated by double spaces)
+    const afterParts=after.trim().split(/\s{2,}/);
+    const transport=(afterParts[0]||"").trim();
+    const voyage=(afterParts[1]||"").trim();
+    if(status) events.push({status,place,date:dm[1],time:dm[2],transport,voyage});
+  }
+  return events;
+}
+
+function groupByPlace(events){
+  const groups=[];
+  for(const ev of events){
+    const last=groups[groups.length-1];
+    if(last&&last.place===ev.place)last.events.push(ev);
+    else groups.push({place:ev.place,events:[ev]});
+  }
+  return groups;
+}
+
+function renderResult(data){
+  const rawStatus=data.status||data.latest_status||"";
+  const events=parseStatusBlock(rawStatus);
+  const lastEv=events.length>0?events[events.length-1]:null;
+  const latestStatus=lastEv?lastEv.status:(rawStatus.trim()||"Unknown");
+  const containers=data.container_no?data.container_no.split(/[\s,;|]+/).filter(Boolean):[];
+  const pol=data.pol||(events.length>0?events[0].place:"")||"";
+  const pod=data.pod||(lastEv?lastEv.place:"")||"";
+
+  // ATA/ATD come from the backend — it knows which port is POL/POD.
+  // Don't try to derive them from events (T/S discharge events would give wrong ATA).
+  const atd=data.atd||"";
+  const ata=data.ata||"";
+
+  // Vessel: prefer backend value; fall back to first non-T/S loaded event transport
+  const loadedEv=events.find(e=>{const sl=e.status.toLowerCase();return!isTS(sl)&&(sl.includes("loaded")||sl.includes("loading"));});
+  const vessel=data.vessel&&!/^\d{4}/.test(data.vessel)?data.vessel:(loadedEv&&loadedEv.transport?loadedEv.transport+(loadedEv.voyage?" / "+loadedEv.voyage:""):"");
+
+  const progress=pct(latestStatus);
+  const pill=pillClass(latestStatus);
+  const stripe=stripeClass(latestStatus);
+
+  const revEvents=[...events].reverse();
+  const groups=groupByPlace(revEvents);
+
+  // If the ship hasn't reached POD yet, add it as a pending "awaiting arrival" entry
+  // so the user can see the final destination in the timeline.
+  const podInTimeline=groups.some(g=>g.place&&pod&&g.place.includes(pod.split(",")[0]));
+  if(pod&&!podInTimeline&&groups.length>0){
+    groups.unshift({place:pod,pending:true,events:[]});
+  }
+
+  let tlHTML="";
+  if(groups.length>0){
+    tlHTML=groups.map((g,gi)=>{
+      if(g.pending){
+        return`<div class="tl-group">
+          <div class="tl-group-head">
+            <div class="tl-dot" style="border-color:var(--slate-lt);background:var(--white);"></div>
+            <span class="tl-loc" style="color:var(--slate-lt);">${g.place}</span>
+          </div>
+          <div class="tl-events">
+            <div class="tl-ev">
+              <span class="tl-ev-label" style="color:var(--slate-lt);font-style:italic;">Awaiting arrival</span>
+            </div>
+          </div>
+        </div>`;
+      }
+      const isDone=["gate in empty","gated in","delivered","departure from","empty received"].some(w=>(g.events[0].status||"").toLowerCase().includes(w));
+      const isLatest=gi===0||(!groups[0].pending&&gi===0);
+      const isCurrentPos=!g.pending&&groups.find(x=>!x.pending)===g;
+      const evRows=g.events.map(ev=>`
+        <div class="tl-ev">
+          <div>
+            <span class="tl-ev-label">${ev.status}</span>
+            ${ev.transport?`<span class="tl-ev-transport"> · ${ev.transport}${ev.voyage?" "+ev.voyage:""}</span>`:""}
+          </div>
+          <span class="tl-ev-date">${formatDateStr(ev.date)} ${ev.time}</span>
+        </div>`).join("");
+      // First non-pending group = current/latest location
+      const firstReal=groups.find(x=>!x.pending);
+      const isCurrent=g===firstReal;
+      return`<div class="tl-group">
+        <div class="tl-group-head">
+          <div class="tl-dot ${isCurrent?"latest":""} ${isDone?"done":""}"></div>
+          <span class="tl-loc">${g.place||"—"}</span>
+        </div>
+        <div class="tl-events">${evRows}</div>
+      </div>`;
+    }).join("");
+  } else if(latestStatus&&latestStatus!=="Unknown"){
+    const bestDate=ata||atd||"";
+    tlHTML=`<div class="tl-group">
+        <div class="tl-group-head">
+          <div class="tl-dot latest"></div>
+          <span class="tl-loc">${pod||pol||"—"}</span>
+        </div>
+        <div class="tl-events">
+          <div class="tl-ev">
+            <div>
+              <span class="tl-ev-label">${latestStatus}</span>
+              ${vessel?`<span class="tl-ev-transport"> · ${vessel}</span>`:""}
+            </div>
+            <span class="tl-ev-date">${formatDateStr(bestDate)||"—"}</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;font-size:11px;color:var(--slate-lt);line-height:1.6;padding:10px 12px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);">
+        ${DISPLAY[data.carrier]||data.carrier} provides summary status only — a full stop-by-stop timeline isn't available for this shipment.
+      </div>`;
+  } else {
+    tlHTML=`<div style="color:var(--slate-lt);font-size:12px;padding:10px 0;">No route events available.</div>`;
+  }
+
+  const vesselHTML=`<div class="vessel-grid">
+    <div class="vg-cell"><div class="vc-lbl">Vessel</div><div class="vc-val">${vessel||"—"}</div></div>
+    <div class="vg-cell"><div class="vc-lbl">Voyage</div><div class="vc-val">${loadedEv&&loadedEv.voyage?loadedEv.voyage:"—"}</div></div>
+    <div class="vg-cell"><div class="vc-lbl">Port of loading</div><div class="vc-val">${pol||"—"}</div></div>
+    <div class="vg-cell"><div class="vc-lbl">Port of discharge</div><div class="vc-val">${pod||"—"}</div></div>
+    <div class="vg-cell"><div class="vc-lbl">ATD</div><div class="vc-val">${formatDateStr(atd)||"—"}</div></div>
+    <div class="vg-cell"><div class="vc-lbl">ATA</div><div class="vc-val">${formatDateStr(ata)||"—"}</div></div>
+    <div class="vg-cell"><div class="vc-lbl">Final destination</div><div class="vc-val">${data.final_destination||pod||"—"}</div></div>
+    <div class="vg-cell"><div class="vc-lbl">Place of receipt</div><div class="vc-val">${data.por||"—"}</div></div>
+    <div class="vg-cell"><div class="vc-lbl">Carrier</div><div class="vc-val">${DISPLAY[data.carrier]||data.carrier}</div></div>
+  </div>`;
+
+  const cnHTML=containers.length>0
+    ?`<ul class="cn-list">${containers.map((cn,i)=>`
+      <li class="cn-item">
+        <div class="cn-icon">📦</div>
+        <div>
+          <div class="cn-num">${cn}</div>
+          <div class="cn-note">${i===0?"Primary container":"Container "+(i+1)}</div>
+        </div>
+      </li>`).join("")}</ul>`
+    :`<div style="color:var(--slate-lt);font-size:12px;padding:10px 0;">No container data available.</div>`;
+
+  document.getElementById("result").innerHTML=`
+  <div class="tracker-card ${stripe}">
+    <div class="tc-head">
+      <div class="tc-head-left">
+        <div class="tc-bl">${data.bl}</div>
+        <div class="tc-carrier">${DISPLAY[data.carrier]||data.carrier}</div>
+      </div>
+      <span class="status-pill ${pill}">${pillLabel(latestStatus)}</span>
+    </div>
+    <div class="tc-route">
+      <div class="tc-route-ports">
+        <div class="tc-port">
+          <div class="tc-port-label">Port of loading</div>
+          <div class="tc-port-name">${pol||"—"}</div>
+          <div class="tc-port-date">ATD ${formatDateStr(atd)||"—"}</div>
+        </div>
+        <div class="tc-port right">
+          <div class="tc-port-label">Port of discharge</div>
+          <div class="tc-port-name">${pod||"—"}</div>
+          <div class="tc-port-date">ATA ${formatDateStr(ata)||"—"}</div>
+        </div>
+      </div>
+      <div class="tc-track-wrap">
+        <div class="tc-track">
+          <div class="tc-track-fill" style="width:${progress}%"></div>
+          <div class="tc-node start"></div>
+          <div class="tc-node end"></div>
+          <div class="tc-ship" style="left:${Math.min(Math.max(progress,3),97)}%">🚢</div>
+        </div>
+      </div>
+    </div>
+    <div class="tc-tabs">
+      <button class="tc-tab active" onclick="switchTab(this,'tp-route')">Route</button>
+      <button class="tc-tab" onclick="switchTab(this,'tp-vessel')">Vessel</button>
+      <button class="tc-tab" onclick="switchTab(this,'tp-containers')">Containers (${containers.length})</button>
+    </div>
+    <div class="tc-body">
+      <div id="tp-route" class="tab-pane" style="display:block;">${tlHTML}</div>
+      <div id="tp-vessel" class="tab-pane" style="display:none;">${vesselHTML}</div>
+      <div id="tp-containers" class="tab-pane" style="display:none;">${cnHTML}</div>
+    </div>
+    <div class="tc-foot">
+      <span class="tc-foot-dot"></span>
+      Last updated ${formatDateStr(data.last_updated)||"—"}
+    </div>
+  </div>`;
+
+  switchTab(document.querySelector(".tc-tab.active"),"tp-route");
+}
+
+function switchTab(btn,panelId){
+  document.querySelectorAll(".tc-tab").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".tab-pane").forEach(p=>p.style.display="none");
+  btn.classList.add("active");
+  document.getElementById(panelId).style.display="block";
+}
+
+const HAPAG_TRACK_URL="https://www.hapag-lloyd.com/en/online-business/track/track.html";
+function isHapag(carrier){
+  return["HAPAG-LLOYD","HAPAG LLOYD","HAPAG"].includes((carrier||"").toUpperCase());
+}
+
+function manualFallbackHTML(bl){
+  return`<div class="manual-box">
+    <div class="manual-box-icon">🔐</div>
+    <h3>Hapag-Lloyd needs a quick human check</h3>
+    <p>Their site occasionally shows a one-time "verify you're human" step that can't be completed automatically. You can look this BL up yourself in a new tab — it only takes a few seconds.</p>
+    <div class="manual-box-actions">
+      <a class="manual-btn primary" href="${HAPAG_TRACK_URL}" target="_blank" rel="noopener">Open Hapag-Lloyd Tracking ↗</a>
+      <button class="manual-btn secondary" onclick="copyBL('${bl}', this)">Copy BL Number</button>
+    </div>
+  </div>`;
+}
+
+function copyBL(bl,btn){
+  navigator.clipboard.writeText(bl).then(()=>{
+    const orig=btn.textContent;
+    btn.textContent="Copied ✓";
+    setTimeout(()=>{btn.textContent=orig;},1500);
+  }).catch(()=>{});
+}
+
+async function track(){
+  const bl=document.getElementById("blInput").value.trim();
+  const carrier=document.getElementById("carrierSelect").value;
+  if(!bl||!carrier){
+    document.getElementById("result").innerHTML=`<div class="error-box">Please enter a BL number and select a carrier.</div>`;
+    return;
+  }
+
+  const carrierInfo=ALL_CARRIERS.find(c=>c.key===carrier);
+  if(carrierInfo&&!carrierInfo.supported){
+    document.getElementById("result").innerHTML=`<div class="error-box" style="background:#fffbeb;border-color:#fde68a;color:#92400e;">
+      <strong>${carrierInfo.label}</strong> tracking is coming soon.
+    </div>`;
+    return;
+  }
+  document.getElementById("searchBtn").disabled=true;
+  document.getElementById("result").innerHTML="";
+
+  // Only show loading spinner if request takes longer than 400ms — prevents flash
+  const hapagHint=isHapag(carrier)
+    ?`<div class="hapag-hint" style="margin-top:12px;">Hapag-Lloyd sometimes needs a manual check — <a href="${HAPAG_TRACK_URL}" target="_blank" rel="noopener">open it directly</a> if you don't want to wait.</div>`
+    :"";
+  let loadingShown=false;
+  const loadingTimer=setTimeout(()=>{
+    loadingShown=true;
+    document.getElementById("result").innerHTML=`<div class="loading-box"><div class="spinner"></div><span>Tracking <strong>${bl}</strong> — fetching live data, this may take 10–20 seconds…</span></div>${hapagHint}`;
+  },400);
+
+  try{
+    const res=await fetch(`/api/track?bl=${encodeURIComponent(bl)}&carrier=${encodeURIComponent(carrier)}`);
+    const data=await res.json();
+    clearTimeout(loadingTimer);
+    if(data.error){
+      document.getElementById("result").innerHTML=isHapag(carrier)
+        ?manualFallbackHTML(bl)
+        :`<div class="error-box">${data.error}</div>`;
+    } else if(isHapag(carrier)&&!data.pol&&!data.pod&&!data.status&&!data.container_no){
+      document.getElementById("result").innerHTML=manualFallbackHTML(bl);
+    } else {
+      renderResult(data);
+    }
+  }catch(e){
+    clearTimeout(loadingTimer);
+    document.getElementById("result").innerHTML=isHapag(carrier)
+      ?manualFallbackHTML(bl)
+      :`<div class="error-box">Request failed: ${e}</div>`;
+  }finally{
+    document.getElementById("searchBtn").disabled=false;
+  }
+}
+
+document.getElementById("blInput").addEventListener("keydown",e=>{if(e.key==="Enter")track();});
+loadCarriers();
+
+// ── Excel sync ────────────────────────────────────────────────────────────────
+async function loadSyncStatus(){
+  try{
+    const r=await fetch("/api/excel/status");
+    const d=await r.json();
+    showSyncStatus(d);
+  }catch(e){}
+}
+
+function showSyncStatus(d){
+  const el=document.getElementById("syncStatus");
+  if(!d||(!d.time&&!d.running)){el.textContent="Not updated yet.";return;}
+  if(d.running){
+    const done    = d.done  || 0;
+    const pending = d.pending || 0;
+    const pct     = pending > 0 ? Math.min(100, Math.round(done / pending * 100)) : 0;
+    const cur     = d.message && d.message.startsWith("Syncing") ? d.message.replace("Syncing ","").replace("…","") : "";
+    el.innerHTML = `
+      <div style="font-weight:600;color:var(--amber);margin-bottom:6px;">
+        ⏳ ${done} / ${pending || "?"} shipments — ${pct}%${cur ? ` &nbsp;·&nbsp; <span style="font-weight:400;font-size:12px;">${cur}</span>` : ""}
+      </div>
+      <div style="height:10px;background:var(--border,#e2e8f0);border-radius:5px;overflow:hidden;max-width:400px;">
+        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#f59e0b,#fbbf24);border-radius:5px;transition:width 0.6s ease;"></div>
+      </div>`;
+    return;
+  }
+  const ok=`<span style="color:var(--status-green-fg);font-weight:700;">${d.ok} OK</span>`;
+  const err=d.errors?`<span style="color:var(--status-red-fg);font-weight:700;"> · ${d.errors} errors</span>`:"";
+  el.innerHTML=`Last updated <strong>${formatDateStr(d.time)||d.time}</strong> — ${d.total} shipments → ${ok}${err}`;
+}
+
+let _syncPoll = null;
+
+async function runSync(){
+  const btn  = document.getElementById("syncBtn");
+  const prog = document.getElementById("syncProgress");
+  const stat = document.getElementById("syncStatus");
+
+  btn.disabled = true;
+  prog.style.display = "block";
+  stat.innerHTML = '<span style="color:var(--amber);font-weight:600;">⏳ Starting…</span>';
+
+  try {
+    const r = await fetch("/api/excel/run", {method:"POST"});
+    const d = await r.json();
+    if (r.status === 409) {
+      stat.textContent = d.detail || "An update is already running";
+      btn.disabled = false; prog.style.display = "none"; return;
+    }
+    if (!d.started) {
+      stat.innerHTML = `<span style="color:var(--status-red-fg);">⚠ ${d.detail||d.message||"Failed"}</span>`;
+      btn.disabled = false; prog.style.display = "none"; return;
+    }
+    // Poll every 3 s until done
+    if (_syncPoll) clearInterval(_syncPoll);
+    _syncPoll = setInterval(async () => {
+      try {
+        const sr = await fetch("/api/excel/status");
+        const sd = await sr.json();
+        showSyncStatus(sd);
+        if (!sd.running) {
+          clearInterval(_syncPoll); _syncPoll = null;
+          btn.disabled = false; prog.style.display = "none";
+        }
+      } catch(e) {
+        clearInterval(_syncPoll); _syncPoll = null;
+        btn.disabled = false; prog.style.display = "none";
+      }
+    }, 3000);
+  } catch(e) {
+    stat.innerHTML = `<span style="color:var(--status-red-fg);">Request failed: ${e}</span>`;
+    btn.disabled = false; prog.style.display = "none";
+  }
+}
+
+loadSyncStatus();
+</script>
+</body>
+</html>

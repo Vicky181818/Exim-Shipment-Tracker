@@ -1,0 +1,154 @@
+{
+  "info": {
+    "name": "Shipping Line Carrier APIs",
+    "description": "Direct tracking APIs for COSCO, Hapag-Lloyd, ONE Line, MSC and HMM.\n\nHMM: the tracking call needs a per-session CSRF token. A pre-request script on the HMM request fetches that token from the tracking page and sets it as the x-csrf-token header automatically — just press Send.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "COSCO - Bill tracking",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json, text/plain, */*" },
+          { "key": "Referer", "value": "https://elines.coscoshipping.com/ebusiness/cargoTracking" }
+        ],
+        "url": {
+          "raw": "https://elines.coscoshipping.com/ebtracking/public/bill/6452489450?timestamp=1783182631564",
+          "protocol": "https",
+          "host": ["elines", "coscoshipping", "com"],
+          "path": ["ebtracking", "public", "bill", "6452489450"],
+          "query": [
+            { "key": "timestamp", "value": "1783182631564", "description": "Cache-buster; any current epoch-millis value works." }
+          ]
+        },
+        "description": "Public COSCO tracking API. IMPORTANT: the path segment is the BARE bill number WITHOUT the 'COSU' prefix (e.g. 6452489450, not COSU6452489450). With the prefix the API returns 200 + 'No data'. Returns trackingPath (POL/POD), cargoTrackingContainer (containers), and actualShipment (per-leg vessel schedule)."
+      },
+      "response": []
+    },
+    {
+      "name": "Hapag-Lloyd - Tracking events",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json, text/plain, */*" },
+          { "key": "x-token", "value": "public" },
+          { "key": "Origin", "value": "https://www.hapag-lloyd.com" },
+          { "key": "Referer", "value": "https://www.hapag-lloyd.com/" }
+        ],
+        "url": {
+          "raw": "https://tracking.api.hlag.cloud/api/tracking/events?reference=HLCULIV2510APBW0",
+          "protocol": "https",
+          "host": ["tracking", "api", "hlag", "cloud"],
+          "path": ["api", "tracking", "events"],
+          "query": [
+            { "key": "reference", "value": "HLCULIV2510APBW0", "description": "Bill of Lading number." }
+          ]
+        },
+        "description": "Hapag-Lloyd internal tracking API. The 'x-token: public' header is required — no login or Cloudflare challenge. Returns groups[].events[] with eventDescription, eventLocation, eventDate/Time, eventTransport, eventVoyageNo, and eventClassifierCode (Actual vs Planned)."
+      },
+      "response": []
+    },
+    {
+      "name": "ONE Line - Track and trace search",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json, text/plain, */*" },
+          { "key": "Origin", "value": "https://ecomm.one-line.com" },
+          { "key": "Referer", "value": "https://ecomm.one-line.com/one-ecom/manage-shipment/cargo-tracking" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"page\": 1,\n  \"page_length\": 50,\n  \"filters\": {\n    \"search_text\": \"CPTG16312300\",\n    \"search_type\": \"BKG_NO\"\n  },\n  \"timestamp\": 0\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "https://ecomm.one-line.com/api/v2/edh/containers/track-and-trace/search",
+          "protocol": "https",
+          "host": ["ecomm", "one-line", "com"],
+          "path": ["api", "v2", "edh", "containers", "track-and-trace", "search"]
+        },
+        "description": "ONE Line internal track-and-trace API (no login). search_type is BKG_NO for a booking number or BL_NO for a bill of lading; put the reference in search_text (the ONEY prefix may be stripped). Returns data[] of per-container items with por/pod, vesselVoyage, and cargoEvents."
+      },
+      "response": []
+    },
+    {
+      "name": "MSC - Tracking info",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json, text/plain, */*" },
+          { "key": "X-Requested-With", "value": "XMLHttpRequest" },
+          { "key": "Origin", "value": "https://www.msc.com" },
+          { "key": "Referer", "value": "https://www.msc.com/en/track-a-shipment" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"trackingNumber\": \"MEDUGR895178\",\n  \"trackingMode\": 0\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "https://www.msc.com/api/feature/tools/TrackingInfo",
+          "protocol": "https",
+          "host": ["www", "msc", "com"],
+          "path": ["api", "feature", "tools", "TrackingInfo"]
+        },
+        "description": "MSC tracking API. Notes: trackingMode MUST be an integer (0), and the 'X-Requested-With: XMLHttpRequest' header is required (without it the API returns 200 with an empty body). MSC's Akamai edge may return 403 in Postman because it checks the TLS fingerprint of a real browser; the app gets past this with a Chrome-impersonating HTTP client."
+      },
+      "response": []
+    },
+    {
+      "name": "HMM - Track and trace",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// HMM requires a CSRF token from its tracking page (tied to the session).",
+              "// Fetch the page first, extract the _csrf token, and save it for the POST.",
+              "pm.sendRequest({",
+              "  url: 'https://www.hmm21.com/e-service/general/trackNTrace/TrackNTrace.do',",
+              "  method: 'GET'",
+              "}, function (err, res) {",
+              "  if (err) { console.log('CSRF fetch failed:', err); return; }",
+              "  const body = res.text();",
+              "  const m = body.match(/name=\"_csrf\"[^>]*content=\"([^\"]+)\"/i)",
+              "         || body.match(/name=\"_csrf\"[^>]*value=\"([^\"]+)\"/i);",
+              "  if (m) { pm.collectionVariables.set('hmm_csrf', m[1]); console.log('CSRF token set:', m[1]); }",
+              "  else { console.log('CSRF token not found on page'); }",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json; charset=UTF-8" },
+          { "key": "Accept", "value": "text/html, */*; q=0.01" },
+          { "key": "X-Requested-With", "value": "XMLHttpRequest" },
+          { "key": "x-csrf-token", "value": "{{hmm_csrf}}" },
+          { "key": "Origin", "value": "https://www.hmm21.com" },
+          { "key": "Referer", "value": "https://www.hmm21.com/e-service/general/trackNTrace/TrackNTrace.do" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"bl\",\n  \"listBl\": [\"BCNA54585400\"],\n  \"listCntr\": [],\n  \"listBkg\": [],\n  \"listPo\": []\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "https://www.hmm21.com/e-service/general/trackNTrace/selectTrackNTrace.do",
+          "protocol": "https",
+          "host": ["www", "hmm21", "com"],
+          "path": ["e-service", "general", "trackNTrace", "selectTrackNTrace.do"]
+        },
+        "description": "HMM tracking endpoint. Two caveats for a standalone call: (1) it expects a CSRF token (x-csrf-token header) obtained by first GET-ing the TrackNTrace.do page and reading the _csrf meta tag; (2) the app sends this over HTTP/1.1 with a Chrome-impersonating client. Without the token the request may not return data. Documented here as the real endpoint."
+      },
+      "response": []
+    }
+  ]
+}
