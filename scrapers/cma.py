@@ -280,6 +280,16 @@ def _parse_mapdetail(payload: str) -> dict:
             result["ATA"] = f"{ev['date']} {ev['time']}"
             break
 
+    # No actual arrival yet (still in transit) → use CMA's estimated arrival.
+    # estimatedTimeOfArrival is CMA's overall ETA at the POD; fall back to the
+    # portOfDischarge date if that field is blank.
+    if not result["ATA"]:
+        eta_iso = (get("ContainerMoveDetail[estimatedTimeOfArrival]")
+                   or get("ContainerMoveDetail[routingInformation][portOfDischarge][date]"))
+        d_s, t_s = _iso_to_parts(eta_iso)
+        if d_s and d_s > "2000":               # ignore the 0001-01-01 placeholder
+            result["ATA"] = f"{d_s} {t_s}"
+
     log.info("[CMA] mapdetail parse: POL=%s POD=%s events=%d", result["POL"], result["POD"], len(events))
     return result
 
